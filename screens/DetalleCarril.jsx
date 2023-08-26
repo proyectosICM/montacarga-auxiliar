@@ -2,7 +2,6 @@ import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet, Alert } from "react-native";
 import { Button } from "react-native-elements";
-
 export function DetalleCarril() {
   const navigation = useNavigation();
   const [montacarga1Liberado, setMontacarga1Liberado] = useState(false);
@@ -11,21 +10,20 @@ export function DetalleCarril() {
 
   const [confirmacionSalida, setConfirmacionSalida] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(0); // Estado para el temporizador
-  const [isEnabled, setIsEnabled] = useState(false); 
+  const [isEnabled, setIsEnabled] = useState(false);
+
   useEffect(() => {
-    // Iniciar el temporizador cuando el componente se monta
     const interval = setInterval(() => {
-      if (secondsRemaining >= 0) {
+      if (secondsRemaining >= 0 && !confirmacionSalida) {
         setSecondsRemaining(secondsRemaining + 1);
       } else {
-        clearInterval(interval); // Detener el temporizador cuando llegue a cero
-        setIsEnabled(true); // Habilitar el botón
+        clearInterval(interval);
+        setIsEnabled(true);
       }
-    }, 1000); // Actualizar cada 1 segundo
+    }, 1000);
 
-    // Limpieza cuando el componente se desmonta
     return () => clearInterval(interval);
-  }, [secondsRemaining]);
+  }, [secondsRemaining, confirmacionSalida]);
 
   const Liberar = (montacarga) => {
     realizarLiberacion(montacarga);
@@ -42,7 +40,7 @@ export function DetalleCarril() {
   const Anunciar = () => {
     Alert.alert(
       "Confirmar Liberación",
-      `¿Seguro que desea confirmar termino de carga?`,
+      `¿Seguro que desea confirmar término de carga?`,
       [
         { text: "No", style: "cancel" },
         { text: "Sí" },
@@ -75,7 +73,7 @@ export function DetalleCarril() {
     <View style={styles.container}>
       <Text style={styles.title}>Carril 1</Text>
       <Text style={styles.status}>Estado: Ocupado</Text>
-      <Text style={styles.status}>Tiempo: {secondsRemaining}</Text>
+      <Text style={styles.status}>Tiempo de carga: {secondsRemaining}</Text>
 
       <Button
         title={
@@ -137,6 +135,7 @@ export function DetalleCarril() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
