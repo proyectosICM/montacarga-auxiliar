@@ -15,21 +15,21 @@ export function MenuCarril() {
       <Text style={styles.title}>Carriles</Text>
       <View style={styles.row}>
         <View style={styles.column}>
-          <Button title={"1 Ocupado"} buttonStyle={styles.ocupadoButton} onPress={() => Detalles()}/>
+          <Button title={"1 Ocupado - 2 Montacargas"} buttonStyle={styles.ocupadoButton} onPress={() => Detalles()}/>
           <Button title={"2 Libre"} buttonStyle={styles.libreButton} onPress={() => Detalles()}/>
         </View>
         <View style={styles.column}>
           <Button title={"3 Libre"} buttonStyle={styles.libreButton} onPress={() => Detalles()}/>
-          <Button title={"4 Ocupado"} buttonStyle={styles.ocupadoButton} onPress={() => Detalles()}/>
+          <Button title={"4 Pendiente"} buttonStyle={styles.pendienteButton} onPress={() => navigation.navigate('Asignar')}/>
         </View>
       </View>
       <View style={styles.row}>
         <View style={styles.column}>
-          <Button title={"5 Ocupado"} buttonStyle={styles.ocupadoButton} onPress={() => Detalles()}/>
-          <Button title={"6 Libre"} buttonStyle={styles.libreButton} onPress={() => Detalles()}/>
+          <Button title={"5 Ocupado - 1 Montacarga"} buttonStyle={styles.ocupadoButton} onPress={() => Detalles()}/>
+          <Button title={"6 Pendiente"} buttonStyle={styles.pendienteButton} onPress={() => navigation.navigate('Asignar')}/>
         </View>
         <View style={styles.column}>
-          <Button title={"7 Ocupado"} buttonStyle={styles.ocupadoButton} onPress={() => Detalles()}/>
+          <Button title={"7 Ocupado - 2 Montacargas"} buttonStyle={styles.ocupadoButton} onPress={() => Detalles()}/>
           <Button title={"8 Libre"} buttonStyle={styles.libreButton} onPress={() => Detalles()}/>
         </View>
       </View>
@@ -70,9 +70,16 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     width: 120,
   },
+  pendienteButton: {
+    backgroundColor: "#FFC107", // Amarillo para botones pendientes
+    marginBottom: 5,
+    width: 120,
+  },
   scanButton: {
     backgroundColor: "#007BFF", // Azul para botón de escanear QR
     marginTop: 20,
     width: 200,
   },
 });
+
+export default MenuCarril;

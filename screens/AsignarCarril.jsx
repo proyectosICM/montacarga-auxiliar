@@ -5,57 +5,29 @@ import { Button } from "react-native-elements";
 
 export function AsignarCarril() {
   const navigation = useNavigation();
-  const [selectedCarril, setSelectedCarril] = useState(null);
+  const [trabaruedas, setTrabaruedas] = useState(false);
   const [selectedMontacarga, setSelectedMontacarga] = useState(null);
 
-  const handleCarrilSelect = (carril) => {
-    setSelectedCarril(carril);
+  const handleTrabaruedas = () => {
+    setTrabaruedas(true);
   };
 
   const handleMontacargaSelect = (montacarga) => {
     setSelectedMontacarga(montacarga);
   };
 
-  const isContinuarDisabled = !selectedCarril || !selectedMontacarga;
+  const isContinuarDisabled =  !selectedMontacarga || !trabaruedas;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Seleccione el Carril al que va a asignar</Text>
-      <View style={styles.buttonContainer}>
-        <Button
-          title={"2 Libre"}
-          buttonStyle={[
-            styles.button,
-            selectedCarril === 2 && styles.selectedButton,
-          ]}
-          onPress={() => handleCarrilSelect(2)}
-        />
-        <Button
-          title={"3 Libre"}
-          buttonStyle={[
-            styles.button,
-            selectedCarril === 3 && styles.selectedButton,
-          ]}
-          onPress={() => handleCarrilSelect(3)}
-        />
-        <Button
-          title={"6 Libre"}
-          buttonStyle={[
-            styles.button,
-            selectedCarril === 6 && styles.selectedButton,
-          ]}
-          onPress={() => handleCarrilSelect(6)}
-        />
-        <Button
-          title={"8 Libre"}
-          buttonStyle={[
-            styles.button,
-            selectedCarril === 8 && styles.selectedButton,
-          ]}
-          onPress={() => handleCarrilSelect(8)}
-        />
-      </View>
-
+      <Button
+        title={'Confirmar colocacion de trabaruedas'}
+        buttonStyle={[
+          styles.confirmButton,
+          trabaruedas && styles.confirmButtonGreen, // Agregado
+        ]}
+        onPress={() => handleTrabaruedas()}
+      />
       <Text style={styles.title}>Asignar número de Montacargas</Text>
       <View style={styles.buttonContainer}>
         <Button
@@ -76,12 +48,14 @@ export function AsignarCarril() {
         />
       </View>
 
-      <Text style={styles.infoText}>Carril: {selectedCarril}</Text>
+      <Text style={styles.infoText}>
+        Trabaruedas: {trabaruedas ? "Si" : "No"}
+      </Text>
+
       <Text style={styles.infoText}>
         Nro. Montacargas: {selectedMontacarga}
       </Text>
 
-      {/* Estilo para el botón "Continuar" */}
       <Button
         title={"Continuar"}
         buttonStyle={[
@@ -91,8 +65,6 @@ export function AsignarCarril() {
         disabled={isContinuarDisabled}
         onPress={() => navigation.navigate('Inicio')}
       />
-
-
     </View>
   );
 }
@@ -131,6 +103,14 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 16,
     marginBottom: 10,
+  },
+  confirmButton: {
+    backgroundColor: "#DC3545", // Rojo para botones de confirmación
+    marginVertical: 10,
+    borderRadius: 10,
+  },
+  confirmButtonGreen: {
+    backgroundColor: "#28A745", // Verde cuando se ha confirmado
   },
   continuarButton: {
     backgroundColor: "#007BFF", // Color para el botón "Continuar"
