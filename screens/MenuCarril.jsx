@@ -2,6 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-elements";
+import { carrilesURL } from "../API/urlsApi";
 
 export function MenuCarril() {
     const navigation = useNavigation();
@@ -9,6 +10,8 @@ export function MenuCarril() {
     const Detalles = () => {
         navigation.navigate('Detalle');
     }
+
+    console.log(carrilesURL);
 
   return (
     <View style={styles.container}>

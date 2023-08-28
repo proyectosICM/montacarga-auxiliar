@@ -1,12 +1,23 @@
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import axios from "axios";
 import React, { useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
+import { asignarMont, carrilesURL } from "../API/urlsApi";
+import { getFormattedStartTime } from './../Hooks/timeUtils';
+import { useListarElementos } from "../Hooks/CRUDHooks";
+import { useRedirectEffect } from "../Hooks/useRedirectEffect";
 
 export function AsignarCarril() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const {carrilId} = route.params
   const [trabaruedas, setTrabaruedas] = useState(false);
   const [selectedMontacarga, setSelectedMontacarga] = useState(null);
+
+  const [carril, setCarril] = useState();
+  useListarElementos(`${carrilesURL}/${carrilId}`, carril, setCarril);
+  useRedirectEffect(carril, 2);
 
   const handleTrabaruedas = () => {
     setTrabaruedas(true);
@@ -16,12 +27,30 @@ export function AsignarCarril() {
     setSelectedMontacarga(montacarga);
   };
 
-  const isContinuarDisabled =  !selectedMontacarga || !trabaruedas;
+  const isContinuarDisabled = !selectedMontacarga || !trabaruedas;
+
+  const handleContinuar = async () => {
+    const horaDeInicio = getFormattedStartTime();
+    const requestDatas = {
+      cantidadMontacargas: selectedMontacarga,
+      estadosModel: {
+        id: 3,
+      },
+      horaInicio: horaDeInicio
+    };
+  
+    await axios.put(`${asignarMont}${carrilId}`, requestDatas);
+
+ 
+    console.log(`Hora de inicio: ${horaDeInicio}`);
+    
+    navigation.navigate('Inicio');
+  };  
 
   return (
     <View style={styles.container}>
       <Button
-        title={'Confirmar colocacion de trabaruedas'}
+        title={"Confirmar colocacion de trabaruedas"}
         buttonStyle={[
           styles.confirmButton,
           trabaruedas && styles.confirmButtonGreen, // Agregado
@@ -63,7 +92,7 @@ export function AsignarCarril() {
           isContinuarDisabled && styles.disabledButton,
         ]}
         disabled={isContinuarDisabled}
-        onPress={() => navigation.navigate('Inicio')}
+        onPress={() => handleContinuar()}
       />
     </View>
   );
