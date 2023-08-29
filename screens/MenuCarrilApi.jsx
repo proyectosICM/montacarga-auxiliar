@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-elements";
 import { carrilesURL } from "../API/urlsApi";
 import { useListarElementos } from "../Hooks/CRUDHooks";
+import { sendPushNotification } from "./MenNot";
 
 
 export function MenuCarrilApi() {
@@ -73,6 +74,7 @@ export function MenuCarrilApi() {
             />
           </View>
         ))}
+        <Button title={'Notificacion'}  onPress={sendPushNotification}/>
     </View>
   );
 }

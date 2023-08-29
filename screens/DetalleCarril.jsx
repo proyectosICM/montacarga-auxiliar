@@ -59,8 +59,11 @@ export function DetalleCarril() {
     await axios.put(`${finAuxiliarURL}${carrilId}`, requestData);
   };
 
-  const permitirSalidaHabilitado =
-    carril && carril.finMontacarga1 && carril.finMontacarga2;
+  const permitirSalidaHabilitado = carril &&
+  (
+    (carril.cantidadMontacargas === 1 && carril.finMontacarga1) ||
+    (carril.cantidadMontacargas === 2 && carril.finMontacarga1 && carril.finMontacarga2)
+  );
 
   const handleSimulacionClick = () => {
     if (!simulacionCompletada) {
@@ -90,41 +93,64 @@ export function DetalleCarril() {
             Estado: {carril.estadosModel.nombre}
           </Text>
           <Text style={styles.status}>
-            Hora de Inicio de carga: {formateoTiempo(carril.horaInicio)}
+            Hora de Inicio de carga:{" "}
+            {carril.horaInicio ? formateoTiempo(carril.horaInicio) : "--"}
           </Text>
           <Text style={styles.status}>
             {carril.horaFin && (
               <Text style={styles.status}>
-                Hora de Fin de carga: {formateoTiempo(carril.horaFin)}
+                Hora de Fin de carga:{" "}
+                {carril.horaFin ? formateoTiempo(carril.horaFin) : "--"}
               </Text>
             )}
           </Text>
-          <Button
-            title={
-              carril.finMontacarga1
-                ? "Montacarga 1 - Libre"
-                : "Montacarga 1 - Cargando mercaderia"
-            }
-            buttonStyle={[
-              styles.button,
-              carril.finMontacarga1 && styles.liberadoButton,
-            ]}
-          />
-          <Button
-            title={
-              carril.finMontacarga2
-                ? "Montacarga 2 - Libre"
-                : "Montacarga 2 - Cargando mercaderia"
-            }
-            buttonStyle={[
-              styles.button,
-              carril.finMontacarga2 && styles.liberadoButton,
-            ]}
-          />
+
+          {carril.cantidadMontacargas === 1 && (
+            <Button
+              title={
+                carril.finMontacarga1
+                  ? "Montacarga 1 - Libre"
+                  : "Montacarga 1 - Cargando mercaderia"
+              }
+              buttonStyle={[
+                styles.button,
+                carril.finMontacarga1 && styles.liberadoButton,
+              ]}
+            />
+          )}
+
+          {carril.cantidadMontacargas === 2 && (
+            <>
+              <Button
+                title={
+                  carril.finMontacarga1
+                    ? "Montacarga 1 - Libre"
+                    : "Montacarga 1 - Cargando mercaderia"
+                }
+                buttonStyle={[
+                  styles.button,
+                  carril.finMontacarga1 && styles.liberadoButton,
+                ]}
+              />
+              <Button
+                title={
+                  carril.finMontacarga2
+                    ? "Montacarga 2 - Libre"
+                    : "Montacarga 2 - Cargando mercaderia"
+                }
+                buttonStyle={[
+                  styles.button,
+                  carril.finMontacarga2 && styles.liberadoButton,
+                ]}
+              />
+            </>
+          )}
 
           {carril.finAuxiliar != true && (
             <Button
-              title={"Avisar término de carga y retiro de trabaruedas al conductor "}
+              title={
+                "Avisar término de carga y retiro de trabaruedas al conductor "
+              }
               buttonStyle={[
                 styles.salidaButton,
                 !permitirSalidaHabilitado && styles.disabledButton,
@@ -140,10 +166,10 @@ export function DetalleCarril() {
             </Text>
           )}
           <Text style={styles.confirmationText}>
-            {carril.finAuxiliar ? "Carga: Confirmada" : "Carga: No confirmada"}
+            {carril.finAuxiliar ? "Fin de carga: Confirmada" : "Fin de carga: No confirmada"}
           </Text>
           <Text style={styles.confirmationText}>
-            {carril.salida ? "Salida: Confirmada" : "Salida: No confirmada"}
+            {carril.salida ? "Salida del conductor: Confirmada" : "Salida del conductor: No confirmada"}
           </Text>
           {/*
 <Button
