@@ -4,7 +4,7 @@ import { Text, View, StyleSheet, Alert } from "react-native";
 import { Button } from "react-native-elements";
 import { carrilesURL, finAuxiliarURL } from "../API/urlsApi";
 import { useListarElementos } from "../Hooks/CRUDHooks";
-import { formateoTiempo, getFormattedStartTime } from "../Hooks/timeUtils";
+import { calcularTiempoTotal, formateoTiempo, getFormattedStartTime } from "../Hooks/timeUtils";
 import axios from "axios";
 import { useRedirectEffect } from "../Hooks/useRedirectEffect";
 
@@ -59,11 +59,12 @@ export function DetalleCarril() {
     await axios.put(`${finAuxiliarURL}${carrilId}`, requestData);
   };
 
-  const permitirSalidaHabilitado = carril &&
-  (
-    (carril.cantidadMontacargas === 1 && carril.finMontacarga1) ||
-    (carril.cantidadMontacargas === 2 && carril.finMontacarga1 && carril.finMontacarga2)
-  );
+  const permitirSalidaHabilitado =
+    carril &&
+    ((carril.cantidadMontacargas === 1 && carril.finMontacarga1) ||
+      (carril.cantidadMontacargas === 2 &&
+        carril.finMontacarga1 &&
+        carril.finMontacarga2));
 
   const handleSimulacionClick = () => {
     if (!simulacionCompletada) {
@@ -84,6 +85,8 @@ export function DetalleCarril() {
     setConfirmacionSalida(true);
   };
 
+
+
   return (
     <View style={styles.container}>
       {carril && (
@@ -101,6 +104,20 @@ export function DetalleCarril() {
               <Text style={styles.status}>
                 Hora de Fin de carga:{" "}
                 {carril.horaFin ? formateoTiempo(carril.horaFin) : "--"}
+              </Text>
+            )}
+          </Text>
+          <Text style={styles.status}>
+            TIempo total:{" "}
+            {carril.horaInicio && carril.horaFin && (
+              <Text>
+                {calcularTiempoTotal(carril.horaInicio, carril.horaFin).minutos}
+                :
+                {
+                  calcularTiempoTotal(carril.horaInicio, carril.horaFin)
+                    .segundos
+                }{" "}
+                minutos
               </Text>
             )}
           </Text>
@@ -166,10 +183,14 @@ export function DetalleCarril() {
             </Text>
           )}
           <Text style={styles.confirmationText}>
-            {carril.finAuxiliar ? "Fin de carga: Confirmada" : "Fin de carga: No confirmada"}
+            {carril.finAuxiliar
+              ? "Fin de carga: Confirmada"
+              : "Fin de carga: No confirmada"}
           </Text>
           <Text style={styles.confirmationText}>
-            {carril.salida ? "Salida del conductor: Confirmada" : "Salida del conductor: No confirmada"}
+            {carril.salida
+              ? "Salida del conductor: Confirmada"
+              : "Salida del conductor: No confirmada"}
           </Text>
           {/*
 <Button

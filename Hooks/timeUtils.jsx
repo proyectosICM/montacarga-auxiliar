@@ -47,3 +47,23 @@ export function formateoTiempo(timeArray) {
     return `${formattedHora}:${formattedMinutos}:${formattedSegundos}`;
   }
   
+
+  export const calcularTiempoTotal = (horaInicio, horaFin) => {
+    const horaInicioDate = new Date(
+      0,
+      0,
+      0,
+      horaInicio[0],
+      horaInicio[1],
+      horaInicio[2]
+    );
+    const horaFinDate = new Date(0, 0, 0, horaFin[0], horaFin[1], horaFin[2]);
+
+    const diferenciaEnMilisegundos = horaFinDate - horaInicioDate;
+    const segundosTotales = Math.floor(diferenciaEnMilisegundos / 1000);
+
+    const minutos = Math.floor(segundosTotales / 60);
+    const segundos = segundosTotales % 60;
+
+    return { minutos, segundos };
+  };

@@ -42,7 +42,7 @@ export function AsignarCarril() {
     await axios.put(`${asignarMont}${carrilId}`, requestDatas);
 
  
-    console.log(`Hora de inicio: ${horaDeInicio}`);
+    //console.log(`Hora de inicio: ${horaDeInicio}`);
     
     navigation.navigate('Inicio');
   };  

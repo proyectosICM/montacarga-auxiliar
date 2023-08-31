@@ -17,3 +17,20 @@ export function useListarElementos(url, dato, setDatos) {
 
   return dato;
 }
+
+export function editarElemento(url, id, est) {
+  const nurl = `${url}/${id}`;
+
+  axios
+    .get(nurl)
+    .then((response) => {
+      const elemento = response.data;
+
+      elemento[est] = true;
+      //console.log(elemento)
+      axios
+        .put(nurl, elemento)
+        .then(() => {
+        });
+    });
+}

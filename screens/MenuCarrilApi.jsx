@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-elements";
 import { carrilesURL } from "../API/urlsApi";
-import { useListarElementos } from "../Hooks/CRUDHooks";
-import { sendPushNotification } from "./MenNot";
+import { editarElemento, marcarNotificado, useListarElementos } from "../Hooks/CRUDHooks";
+import { sendPushNotification, sendPushNotificationCamionPendiente, sendPushNotificationCamionPendiente2 } from "./MenNot";
 
 
 export function MenuCarrilApi() {
@@ -28,21 +28,19 @@ export function MenuCarrilApi() {
   };
 
   const [carriles, setCarriles] = useState();
-/*
-  const ListarCarriles = async () => {
-    try {
-      const response = await axios.get(carrilesURL);
-      setCarriles(response.data);
-    } catch (error) {
-      console.error("Error al obtener los datos:", error);
-    }
-  };*/
 
-
-
- /* useEffect(() => {
-    ListarCarriles();
-  }, [ListarCarriles]);*/
+  useEffect(() => {
+    if (carriles) {
+      carriles.forEach((carril) => {
+        if (carril.estadosModel.id === 2 && !carril.notificar ) {
+          //console.log("temp") 
+          sendPushNotificationCamionPendiente(carril.id);
+          //axios.put(`${carrilesURL}/${carril.id}`, )
+          editarElemento(carrilesURL, carril.id, 'notificar' )
+        }
+      });
+    } 
+  }, [sendPushNotificationCamionPendiente, carriles]);
 
   useListarElementos(carrilesURL,carriles, setCarriles);
 
@@ -56,6 +54,13 @@ export function MenuCarrilApi() {
     }
     return styles.libreButton; // Por defecto
   };
+
+  const handleNoti = () => {
+    sendPushNotification();
+    sendPushNotificationCamionPendiente2()
+  }
+
+  
 
   return (
     <View style={styles.container}>
@@ -74,7 +79,7 @@ export function MenuCarrilApi() {
             />
           </View>
         ))}
-        <Button title={'Notificacion'}  onPress={sendPushNotification}/>
+        <Button title={'Notificacion'}  onPress={handleNoti}/>
     </View>
   );
 }
