@@ -1,48 +1,46 @@
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, ImageBackground, StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-elements";
-import { carrilesURL } from "../API/urlsApi";
-import { editarElemento, marcarNotificado, useListarElementos } from "../Hooks/CRUDHooks";
-import { sendPushNotification, sendPushNotificationCamionPendiente, sendPushNotificationCamionPendiente2 } from "./MenNot";
+import { carrilesURL } from "../API/urlsApi.jsx";
+import { useListarElementos } from "../Hooks/CRUDHooks";
 
-
-export function MenuCarrilApi() {
+export function MenuSedesApi() {
   const navigation = useNavigation();
 
   const Detalles = (estado, dato) => {
     switch (estado) {
       case 1:
-        navigation.navigate("Libre",  {carrilId: dato});
+        navigation.navigate("Libre", { carrilId: dato });
         break;
 
       case 2:
-        navigation.navigate("Asignar", {carrilId: dato});
+        navigation.navigate("Pendiente", { carrilId: dato });
         break;
 
       case 3:
-        navigation.navigate("Detalle", {carrilId: dato});
+        navigation.navigate("Montacargas Asignados", { carrilId: dato });
         break;
     }
   };
 
   const [carriles, setCarriles] = useState();
+  /*
+  const ListarCarriles = async () => {
+    try {
+      const response = await axios.get(carrilesURL);
+      setCarriles(response.data);
+    } catch (error) {
+      console.error("Error al obtener los datos:", error);
+    }
+  };*/
 
-  useEffect(() => {
-    if (carriles) {
-      carriles.forEach((carril) => {
-        if (carril.estadosModel.id === 2 && !carril.notificar ) {
-          //console.log("temp") 
-          sendPushNotificationCamionPendiente(carril.id);
-          //axios.put(`${carrilesURL}/${carril.id}`, )
-          editarElemento(carrilesURL, carril.id, 'notificar' )
-        }
-      });
-    } 
-  }, [sendPushNotificationCamionPendiente, carriles]);
+  /* useEffect(() => {
+    ListarCarriles();
+  }, [ListarCarriles]);*/
 
-  useListarElementos(carrilesURL,carriles, setCarriles);
+  useListarElementos(carrilesURL, carriles, setCarriles);
 
   const getButtonStyle = (estadoId) => {
     if (estadoId === 1) {
@@ -55,16 +53,9 @@ export function MenuCarrilApi() {
     return styles.libreButton; // Por defecto
   };
 
-  const handleNoti = () => {
-    sendPushNotification();
-    sendPushNotificationCamionPendiente2()
-  }
-
-  
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Carriles</Text>
+      <Text style={styles.title}>Por favor seleccione la sede donde se encuentra</Text>
       <FlatList
         data={carriles}
         keyExtractor={(item) => item.id.toString()}
@@ -83,7 +74,6 @@ export function MenuCarrilApi() {
           </View>
         )}
       />
-
     </View>
   );
 }
@@ -99,6 +89,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+    textAlign: "center",
+    padding: 15
   },
   row: {
     flexDirection: "row",
@@ -131,4 +123,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MenuCarrilApi;
+export default MenuSedesApi;
