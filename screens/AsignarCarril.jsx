@@ -3,22 +3,29 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
-import { asignarMont, carrilesURL } from "../API/urlsApi";
-import { getFormattedStartTime } from './../Hooks/timeUtils';
+import { asignarMont, carrilesURL, desunirseURL, unirseURL } from "../API/urlsApi";
+import { getFormattedStartTime } from "./../Hooks/timeUtils";
 import { useListarElementos } from "../Hooks/CRUDHooks";
 import { useRedirectEffect } from "../Hooks/useRedirectEffect";
+import { cargarPlacaDesdeAlmacenamiento } from "../Hooks/placaLocal";
+import { general } from "../Styles/general";
 
 export function AsignarCarril() {
   const navigation = useNavigation();
   const route = useRoute();
-  const {carrilId} = route.params
+  const { carrilId } = route.params;
   const [trabaruedas, setTrabaruedas] = useState(false);
   const [selectedMontacarga, setSelectedMontacarga] = useState(null);
+  const [join, setJoin] = useState(false);
+
+  const [placa, setPlaca] = useState();
+
+  cargarPlacaDesdeAlmacenamiento(setPlaca);
 
   const [carril, setCarril] = useState();
   useListarElementos(`${carrilesURL}/${carrilId}`, carril, setCarril);
-  useRedirectEffect(carril, 2);
 
+  useRedirectEffect(carril, 2);
   const handleTrabaruedas = () => {
     setTrabaruedas(true);
   };
@@ -29,6 +36,24 @@ export function AsignarCarril() {
 
   const isContinuarDisabled = !selectedMontacarga || !trabaruedas;
 
+  const handleJoin = async () => {
+    try {
+      if(join){
+        const response = await axios.put(`${desunirseURL}${carrilId}/${placa}`);
+          console.log("DesUnión exitosa");
+          setJoin(false);
+
+      } else if(!join){
+        const response = await axios.put(`${unirseURL}${carrilId}/${placa}`);
+          console.log("Unión exitosa");
+          setJoin(true);
+      }
+    } catch (error) {
+      // Manejar errores de red u otros errores aquí.
+      console.error("Error en la solicitud: ", error);
+    }
+  };
+
   const handleContinuar = async () => {
     const horaDeInicio = getFormattedStartTime();
     const requestDatas = {
@@ -36,28 +61,24 @@ export function AsignarCarril() {
       estadosModel: {
         id: 3,
       },
-      horaInicio: horaDeInicio
+      horaInicio: horaDeInicio,
     };
-  
+
     await axios.put(`${asignarMont}${carrilId}`, requestDatas);
 
- 
     //console.log(`Hora de inicio: ${horaDeInicio}`);
-    
-    navigation.navigate('Inicio');
-  };  
+
+    navigation.navigate("Inicio");
+  };
 
   return (
     <View style={styles.container}>
-      <Button
-        title={"Confirmar colocacion de trabaruedas"}
-        buttonStyle={[
-          styles.confirmButton,
-          trabaruedas && styles.confirmButtonGreen, // Agregado
-        ]}
-        onPress={() => handleTrabaruedas()}
-      />
-      <Text style={styles.title}>Asignar número de Montacargas</Text>
+      <Text style={styles.title}>
+        Montacargas solicitados por el conductor:{" "}
+        {carril && carril.montacargasSolicitados}
+      </Text>
+
+      <Text style={styles.title}>Confirmar número de Montacargas</Text>
       <View style={styles.buttonContainer}>
         <Button
           title={"1"}
@@ -84,6 +105,29 @@ export function AsignarCarril() {
       <Text style={styles.infoText}>
         Nro. Montacargas: {selectedMontacarga}
       </Text>
+
+      <Text style={styles.infoText}>
+        Montacargas 1: {carril && carril.placa1 ? carril.placa1 : "No unido"}
+      </Text>
+
+      <Text style={styles.infoText}>
+        Montacargas 2: {carril && carril.placa2 ? carril.placa2 : "No unido"}
+      </Text>
+
+      <Button
+        title={join ? "Unido" : "Unirme"}
+        buttonStyle={join ? styles.confirmButtonGreen : general.styleButton}
+        onPress={() => handleJoin()}
+      />
+
+      <Button
+        title={"Confirmar colocacion de trabaruedas"}
+        buttonStyle={[
+          styles.confirmButton,
+          trabaruedas && styles.confirmButtonGreen, // Agregado
+        ]}
+        onPress={() => handleTrabaruedas()}
+      />
 
       <Button
         title={"Continuar"}

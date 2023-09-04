@@ -7,6 +7,8 @@ import { AsignarCarril } from './screens/AsignarCarril';
 import { DetalleCarril } from './screens/DetalleCarril';
 import { MenuCarrilApi } from './screens/MenuCarrilApi';
 import { CarrilLibre } from './screens/CarrilLibre';
+import { Identificar } from './screens/Identificar';
+import { OpcionesMontacargas } from './screens/OpcionesMontacargas';
 
 export default function App() {
 
@@ -14,11 +16,15 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name = 'Inicio' component={MenuCarrilApi}  />
-        <Stack.Screen name = 'Leer QR' component={QRScanner} />
-        <Stack.Screen name = 'Asignar' component={AsignarCarril} />
-        <Stack.Screen name = 'Detalle' component={DetalleCarril} />
-        <Stack.Screen name = 'Libre' component={CarrilLibre} />
+        <Stack.Screen name='Identificar' component={Identificar} />
+        <Stack.Screen name='Inicio' component={MenuCarrilApi}  options={{headerShown: false }}/>
+        <Stack.Screen name='Opciones' component={OpcionesMontacargas}  />
+        <Stack.Screen name='Leer QR' component={QRScanner} />
+
+        
+        <Stack.Screen name='Asignar' component={AsignarCarril} />
+        <Stack.Screen name='Detalle' component={DetalleCarril} />
+        <Stack.Screen name='Libre' component={CarrilLibre} />
       </Stack.Navigator>
     </NavigationContainer>
   );

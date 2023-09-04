@@ -51,7 +51,7 @@ export async function sendPushNotificationCamionPendiente(numCarril) {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: `Se a detectado ingreso de camion a carril 📬 ${numCarril}`,
-          body: 'Carril numero 3 pendiente a asignacion',
+          body: 'Carril pendiente a asignacion',
           data: { data: 'goes here' },
         },
         trigger: { seconds: 12 },
