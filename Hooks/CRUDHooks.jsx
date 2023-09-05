@@ -21,16 +21,13 @@ export function useListarElementos(url, dato, setDatos) {
 export function editarElemento(url, id, est) {
   const nurl = `${url}/${id}`;
 
-  axios
-    .get(nurl)
-    .then((response) => {
-      const elemento = response.data;
+  axios.get(nurl).then((response) => {
+    const elemento = response.data;
 
-      elemento[est] = true;
-      //console.log(elemento)
-      axios
-        .put(nurl, elemento)
-        .then(() => {
-        });
+    elemento[est] = true;
+
+    axios.put(nurl, elemento).then(() => {
+      console.log(elemento);
     });
+  });
 }

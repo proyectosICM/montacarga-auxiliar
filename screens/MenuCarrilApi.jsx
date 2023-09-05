@@ -44,16 +44,28 @@ export function MenuCarrilApi() {
 
   cargarPlacaDesdeAlmacenamiento(setPlacaGuardada);
 
+  const [carrilesNotificados, setCarrilesNotificados] = useState([]);
+
   useEffect(() => {
-    if (carriles) {
-      carriles.forEach((carril) => {
-        if (carril.estadosModel.id === 2 && !carril.notificar) {
-          sendPushNotificationCamionPendiente(carril.id);
-          editarElemento(carrilesURL, carril.id, "notificar");
+    const processCarriles = async () => {
+      if (carriles) {
+        for (const carril of carriles) {
+          if (carril.estadosModel.id === 2 && !carril.notificar) {
+            // Verificar si ya se notificó este carril
+            if (!carrilesNotificados.includes(carril.id)) {
+              sendPushNotificationCamionPendiente(carril.id);
+              await editarElemento(carrilesURL, carril.id, "notificar");
+              console.log("Cambiado", carril.id, carril.notificar);
+              // Marcar este carril como notificado
+              setCarrilesNotificados([...carrilesNotificados, carril.id]);
+            }
+          }
         }
-      });
-    }
-  }, [sendPushNotificationCamionPendiente, carriles]);
+      }
+    };
+  
+    processCarriles();
+  }, [carriles, carrilesNotificados]);
 
   useListarElementos(carrilesURL, carriles, setCarriles);
 

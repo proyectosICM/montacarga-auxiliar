@@ -1,11 +1,16 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
-import { asignarMont, carrilesURL, desunirseURL, unirseURL } from "../API/urlsApi";
+import {
+  asignarMont,
+  carrilesURL,
+  desunirseURL,
+  unirseURL,
+} from "../API/urlsApi";
 import { getFormattedStartTime } from "./../Hooks/timeUtils";
-import { useListarElementos } from "../Hooks/CRUDHooks";
+import { editarElemento, useListarElementos } from "../Hooks/CRUDHooks";
 import { useRedirectEffect } from "../Hooks/useRedirectEffect";
 import { cargarPlacaDesdeAlmacenamiento } from "../Hooks/placaLocal";
 import { general } from "../Styles/general";
@@ -25,31 +30,55 @@ export function AsignarCarril() {
   const [carril, setCarril] = useState();
   useListarElementos(`${carrilesURL}/${carrilId}`, carril, setCarril);
 
+  useEffect(() => {
+    if (carril) {
+      if (carril.placa1 || carril.placa2) {
+        if (carril.placa1 != null && carril.placa1 == placa) {
+          setJoin(true);
+        } else if (!carril.placa2 && carril.placa2 == placa) {
+          setJoin(true);
+        }
+      }
+    }
+  });
+
+  useEffect(()=> {
+    if(carril){
+      if(carril.placa1 && carril.placa2){
+        setSelectedMontacarga(2);
+      } else if(carril.placa1 && !carril.placa2){
+        setSelectedMontacarga(1);
+      } else if(!carril.placa1 && carril.placa2){
+        setSelectedMontacarga(1);
+      }
+    }
+  },[carril])
+
   useRedirectEffect(carril, 2);
+
   const handleTrabaruedas = () => {
+    editarElemento(`${carrilesURL}`,`${carrilId}`, `trabaruedas`)
     setTrabaruedas(true);
   };
 
   const handleMontacargaSelect = (montacarga) => {
-    setSelectedMontacarga(montacarga);
+    setSelectedMontacarga(1);
   };
 
   const isContinuarDisabled = !selectedMontacarga || !trabaruedas;
 
   const handleJoin = async () => {
     try {
-      if(join){
+      if (join) {
         const response = await axios.put(`${desunirseURL}${carrilId}/${placa}`);
-          console.log("DesUnión exitosa");
-          setJoin(false);
-
-      } else if(!join){
+        console.log("DesUnión exitosa");
+        setJoin(false);
+      } else if (!join) {
         const response = await axios.put(`${unirseURL}${carrilId}/${placa}`);
-          console.log("Unión exitosa");
-          setJoin(true);
+        console.log("Unión exitosa");
+        setJoin(true);
       }
     } catch (error) {
-      // Manejar errores de red u otros errores aquí.
       console.error("Error en la solicitud: ", error);
     }
   };
@@ -63,22 +92,20 @@ export function AsignarCarril() {
       },
       horaInicio: horaDeInicio,
     };
-
+    console.log(`${asignarMont}${carrilId}`);
     await axios.put(`${asignarMont}${carrilId}`, requestDatas);
 
-    //console.log(`Hora de inicio: ${horaDeInicio}`);
-
-    navigation.navigate("Inicio");
   };
 
+  useRedirectEffect(carril, 3);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        Montacargas solicitados por el conductor:{" "}
+        Montacargas maximos:{" "}
         {carril && carril.montacargasSolicitados}
       </Text>
 
-      <Text style={styles.title}>Confirmar número de Montacargas</Text>
+      <Text style={styles.title}>Montacargas que han aceptado</Text>
       <View style={styles.buttonContainer}>
         <Button
           title={"1"}
