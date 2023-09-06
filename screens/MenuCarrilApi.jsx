@@ -44,7 +44,38 @@ export function MenuCarrilApi() {
 
   cargarPlacaDesdeAlmacenamiento(setPlacaGuardada);
 
-  const [carrilesNotificados, setCarrilesNotificados] = useState([]);
+
+
+
+
+  useListarElementos(carrilesURL, carriles, setCarriles);
+
+  /*useEffect(() => {
+    if (carriles) {
+      carriles.map(async(carril) => {
+        if (carril.estadosModel.id === 2) {
+          if(carril.notificar == false || carril.notificar == null){
+
+            await axios.get(`${carrilesURL}/${carril.id}`).then(async(response) => {
+              const elemento = response.data;
+          
+              elemento[`notificar`] = true;
+          
+              await axios.put(`${carrilesURL}/${carril.id}`, elemento).then(() => {
+                console.log(elemento);
+                console.log(carril.id, "pen2")
+              });
+
+            });
+          }
+
+        }
+      });
+    }
+  }, [carriles]);
+*/
+
+const [carrilesNotificados, setCarrilesNotificados] = useState([]);
 
   useEffect(() => {
     const processCarriles = async () => {
@@ -66,9 +97,6 @@ export function MenuCarrilApi() {
   
     processCarriles();
   }, [carriles, carrilesNotificados]);
-
-  useListarElementos(carrilesURL, carriles, setCarriles);
-
   const getButtonStyle = (estadoId) => {
     if (estadoId === 1) {
       return styles.libreButton;
