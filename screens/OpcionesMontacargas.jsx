@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TextInput } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { general } from "../Styles/general";
 import {
-    cargarPlacaDesdeAlmacenamiento,
+  cargarNIP,
+  cargarPlacaDesdeAlmacenamiento,
+  eliminarNIP,
   eliminarPlacaDelAlmacenamiento,
+  guardarNIp,
   guardarPlacaEnAlmacenamiento,
 } from "../Hooks/placaLocal";
 import { useNavigation } from "@react-navigation/native";
@@ -13,7 +16,9 @@ import { Button } from "react-native-elements";
 export function OpcionesMontacargas() {
   const [placa, setPlaca] = useState("");
   const [placaGuardada, setPlacaGuardada] = useState("");
-  const [editarVisible, setEditarVisible] = useState(false); // Estado para controlar la visibilidad de la sección de edición
+  const [editarVisible, setEditarVisible] = useState(false);
+
+
   const navigation = useNavigation();
 
   const EliminarPlaca = () => {
@@ -22,10 +27,33 @@ export function OpcionesMontacargas() {
 
   const GuardarPlaca = () => {
     guardarPlacaEnAlmacenamiento(placa, setPlaca, setPlacaGuardada);
-    setEditarVisible(false)
+    setEditarVisible(false);
   };
 
-  cargarPlacaDesdeAlmacenamiento(setPlacaGuardada)
+  const EliminarIp = () => {
+    eliminarNIP();
+  };
+
+  const GuardarIp = () => {
+    guardarNIp(ipServidor, setIpServidor, setIpServer);
+    setEditarVisible(false);
+  };
+
+  const NuevaIp = async (ip2) => {
+    //const ipString = ip2.toString(); // Asegúrate de que ip2 sea una cadena
+    await AsyncStorage.setItem("NServidor", ip2);
+    setCambiarIP(false);
+    actualizarIP();
+  }
+
+  const [ipserver, setIpServer] = useState(null); // Inicialmente, el valor es nulo
+
+  const [cambiarIP, setCambiarIP] = useState(false);
+  const [ipServidor, setIpServidor] = useState();
+
+
+  cargarPlacaDesdeAlmacenamiento(setPlacaGuardada);
+  //cargarNIP(ipserver)
 
   return (
     <View style={general.container}>
@@ -43,15 +71,56 @@ export function OpcionesMontacargas() {
             onChangeText={(texto) => setPlaca(texto)}
             style={general.input}
           />
-          <Button title="Guardar Placa" onPress={GuardarPlaca} buttonStyle={general.buttonPalette}/>
+          <Button
+            title="Guardar Placa"
+            onPress={GuardarPlaca}
+            buttonStyle={general.buttonPalette}
+          />
         </>
       ) : (
         // Muestra el botón "Editar" solo cuando editarVisible es falso
         <View>
-          <Button title="Editar Placa" onPress={() => setEditarVisible(true)} buttonStyle={general.buttonPalette} />
-          <Button title="Eliminar Placa" onPress={EliminarPlaca} buttonStyle={general.buttonPalette} />
+          <Button
+            title="Editar Placa"
+            onPress={() => setEditarVisible(true)}
+            buttonStyle={general.buttonPalette}
+          />
+          <Button
+            title="Eliminar Placa"
+            onPress={EliminarPlaca}
+            buttonStyle={general.buttonPalette}
+          />
+          <Button
+            title="Cambiar IP"
+            onPress={() => setCambiarIP(true)}
+            buttonStyle={general.buttonPalette}
+          />
         </View>
       )}
+
+      {cambiarIP && (
+        <>
+          <Text style={general.textStyle}>Editar IP del servidor API:</Text>
+          <TextInput
+            placeholder="Ingrese la nueva Ip del servidor API"
+            value={ipServidor}
+            onChangeText={(texto) => setIpServidor(texto)}
+            style={general.input}
+          />
+          <Button
+            title="Guardar IP"
+            onPress={GuardarIp}
+            buttonStyle={general.buttonPalette}
+          />
+        </>
+      )}
+
+      <Text>Nueva IP : {ipserver && ipserver} </Text>
+      <Button
+            title="Eliminar IP"
+            onPress={EliminarIp}
+            buttonStyle={general.buttonPalette}
+          />
     </View>
   );
 }

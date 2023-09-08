@@ -1,0 +1,401 @@
+Soluciona este error: archivo 1: import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
+import { Button } from "react-native-elements";
+import { carrilesURL } from "../API/urlsApi";
+import {
+  editarElemento,
+  marcarNotificado,
+  useListarElementos,
+} from "../Hooks/CRUDHooks";
+import {
+  sendPushNotification,
+  sendPushNotificationCamionPendiente,
+  sendPushNotificationCamionPendiente2,
+} from "./MenNot";
+import { cargarPlacaDesdeAlmacenamiento } from "../Hooks/placaLocal";
+import { general } from "../Styles/general";
+import { useBackHandler } from "../Hooks/backHandler";
+
+export function MenuCarrilApi() {
+  const navigation = useNavigation();
+
+  useBackHandler(navigation);
+
+  const Detalles = (estado, dato) => {
+    switch (estado) {
+      case 1:
+        navigation.navigate("Libre", { carrilId: dato });
+        break;
+
+      case 2:
+        navigation.navigate("Asignar", { carrilId: dato });
+        break;
+
+      case 3:
+        navigation.navigate("Detalle", { carrilId: dato });
+        break;
+    }
+  };
+
+  const [carriles, setCarriles] = useState();
+  const [placaGuardada, setPlacaGuardada] = useState();
+
+  cargarPlacaDesdeAlmacenamiento(setPlacaGuardada);
+
+
+
+
+
+  useListarElementos(carrilesURL, carriles, setCarriles);
+
+  /*useEffect(() => {
+    if (carriles) {
+      carriles.map(async(carril) => {
+        if (carril.estadosModel.id === 2) {
+          if(carril.notificar == false || carril.notificar == null){
+
+            await axios.get(`${carrilesURL}/${carril.id}`).then(async(response) => {
+              const elemento = response.data;
+          
+              elemento[`notificar`] = true;
+          
+              await axios.put(`${carrilesURL}/${carril.id}`, elemento).then(() => {
+                console.log(elemento);
+                console.log(carril.id, "pen2")
+              });
+
+            });
+          }
+
+        }
+      });
+    }
+  }, [carriles]);
+*/
+
+const [carrilesNotificados, setCarrilesNotificados] = useState([]);
+
+  useEffect(() => {
+    const processCarriles = async () => {
+      if (carriles) {
+        for (const carril of carriles) {
+          if (carril.estadosModel.id === 2 && !carril.notificar) {
+            // Verificar si ya se notificó este carril
+            if (!carrilesNotificados.includes(carril.id)) {
+              sendPushNotificationCamionPendiente(carril.id);
+              await editarElemento(carrilesURL, carril.id, "notificar");
+              console.log("Cambiado", carril.id, carril.notificar);
+              // Marcar este carril como notificado
+              setCarrilesNotificados([...carrilesNotificados, carril.id]);
+            }
+          }
+        }
+      }
+    };
+  
+    processCarriles();
+  }, [carriles, carrilesNotificados]);
+  const getButtonStyle = (estadoId) => {
+    if (estadoId === 1) {
+      return styles.libreButton;
+    } else if (estadoId === 2) {
+      return styles.pendienteButton;
+    } else if (estadoId === 3) {
+      return styles.ocupadoButton;
+    }
+    return styles.libreButton; // Por defecto
+  };
+
+  return (
+    <View style={general.container}>
+      <Text style={[general.tittleText, { margin: 100 }]}>Carriles</Text>
+
+      <Text style={general.tittleText}>Placa: {placaGuardada} </Text>
+      <FlatList
+        data={carriles}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2} 
+        renderItem={({ item }) => (
+          <View style={styles.column}>
+            <Button
+              title={`${item.id} - ${item.estadosModel.nombre} ${
+                item.cantidadMontacargas
+                  ? ` - ${item.cantidadMontacargas} Montacargas `
+                  : ""
+              } `}
+              buttonStyle={getButtonStyle(item.estadosModel.id)}
+              onPress={() => Detalles(item.estadosModel.id, item.id)}
+            />
+          </View>
+        )}
+      />
+
+      <Button title={'Opciones de Montacargas'} onPress={() => navigation.navigate('Opciones')} buttonStyle={[general.buttonPalette, {margin: 80}]} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+  },
+  column: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: 10,
+  },
+  libreButton: {
+    backgroundColor: "#28A745", // Verde para botones libres
+    marginBottom: 5,
+    width: 120,
+  },
+  ocupadoButton: {
+    backgroundColor: "#DC3545", // Rojo para botones ocupados
+    marginBottom: 5,
+    width: 120,
+  },
+  pendienteButton: {
+    backgroundColor: "#FFC107", // Amarillo para botones pendientes
+    marginBottom: 5,
+    width: 120,
+  },
+});
+
+export default MenuCarrilApi;
+archivo 2: import axios from "axios";
+import { useCallback, useEffect } from "react";
+import { carrilesURL } from "../API/urlsApi";
+import { sendPushNotificationCamionPendiente } from "../screens/MenNot";
+
+export function useListarElementos(url, dato, setDatos) {
+  const ListarCarriles = async () => {
+    try {
+      const response = await axios.get(url);
+      setDatos(response.data);
+      const da = response.data;
+      da.forEach(async (d) => {
+        if (!d.notificar && d.estadosModel.id === 2) {
+          await axios.get(`${carrilesURL}/${d.id}`).then(async (response) => {
+            const elemento = response.data;
+            elemento[`notificar`] = true;
+            await axios.put(`${carrilesURL}/${d.id}`, elemento).then(() => {
+              sendPushNotificationCamionPendiente(d.id)
+
+            });
+          });
+        }
+      });
+    } catch (error) {
+      console.error("Error al obtener los datos:", error);
+    }
+  };
+/*
+  useEffect(() => {
+    const intervalId = setInterval(ListarCarriles, 1500); // Llama a ListarCarriles cada 1 segundo
+    ListarCarriles()
+    return () => {
+      clearInterval(intervalId); // Limpia el intervalo cuando el componente se desmonta
+    };
+  }, []);
+  */
+
+  useEffect(() => {
+    ListarCarriles();
+  }, [ListarCarriles]);
+  return dato;
+
+}
+
+export function editarElemento(url, id, est) {
+  const nurl = `${url}/${id}`;
+
+  axios.get(nurl).then((response) => {
+    const elemento = response.data;
+
+    elemento[est] = true;
+
+    axios.put(nurl, elemento).then(() => {
+      console.log(elemento);
+    });
+  });
+}
+archivo 3: import { useEffect } from 'react';
+import { Platform } from 'react-native';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import { carrilesURL } from '../API/urlsApi';
+import { editarElemento } from '../Hooks/CRUDHooks';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
+export async function sendPushNotification() {
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      return;
+    }
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `Se a detectado ingreso de camion a carril 📬`,
+        body: 'Carril numero 3 pendiente a asignacion',
+        data: { data: 'goes here' },
+      },
+      trigger: { seconds: 12 },
+    });
+  } else {
+    alert('Must use physical device for Push Notifications');
+  }
+}
+
+/*
+export async function sendPushNotificationCamionPendiente(numCarril) {
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: `Se a detectado ingreso de camion a carril 📬 ${numCarril}`,
+          body: 'Carril pendiente a asignacion',
+          data: { data: 'goes here' },
+        },
+        trigger: { seconds: 2 },
+      });
+      await editarElemento(carrilesURL, numCarril, `notificar`);
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  }
+*/
+
+const [isNotifying, setIsNotifying] = useState(false);
+
+const sendPushNotificationCamionPendiente = async (numCarril) => {
+  if (isNotifying) {
+    return;
+  }
+
+  setIsNotifying(true);
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      setIsNotifying(false);
+      return;
+    }
+
+    const notificationId = numCarril.toString(); // Use numCarril como identificador único
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `Se a detectado ingreso de camion a carril 📬 ${numCarril}`,
+        body: 'Carril pendiente a asignacion',
+        data: { data: 'goes here' },
+      },
+      trigger: { seconds: 2 },
+      identifier: notificationId, // Usa el identificador único
+    });
+
+    // Espera a que se reciba la respuesta de la notificación
+    const response = await Notifications.waitForNotificationResponseAsync();
+
+    if (response.notification.request.identifier === notificationId) {
+      // Solo marca como notificado si la respuesta pertenece a la notificación actual
+      await editarElemento(carrilesURL, numCarril, `notificar`);
+    }
+  } else {
+    alert('Must use physical device for Push Notifications');
+  }
+
+  setIsNotifying(false);
+};
+
+  export async function sendPushNotificationCamionPendiente2(numCarril) {
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: `Se a detectado ingreso de camion a carril 📬`,
+          body: 'Carril numero 5 pendiente a asignacion',
+          data: { data: 'goes here' },
+        },
+        trigger: { seconds: 12 },
+      });
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  }
+el error es:  WARN  Possible Unhandled Promise Rejection (id: 3):
+Error: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem.
+Error: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem.
+    at throwInvalidHookError (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:90341:24)
+    at useState (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:8922:35)
+    at ?anon_0_ (http://192.168.1.232:8081/screens\MenNot.bundle//&platform=android&hot=false&lazy=true&dev=true&minify=false&modulesOnly=true&runModule=false&shallow=true:72:43)       
+    at next (native)
+    at asyncGeneratorStep (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:6090:26)
+    at _next (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:6109:29)
+    at anonymous (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:6114:14)
+    at tryCallTwo (/Users/kudo/01_Work/Repos/expo/expo/android/versioned-react-native/packages/react-native/ReactAndroid/hermes-engine/.cxx/MinSizeRel/3n472i6k/armeabi-v7a/lib/InternalBytecode/InternalBytecode.js:61:9)
+    at doResolve (/Users/kudo/01_Work/Repos/expo/expo/android/versioned-react-native/packages/react-native/ReactAndroid/hermes-engine/.cxx/MinSizeRel/3n472i6k/armeabi-v7a/lib/InternalBytecode/InternalBytecode.js:216:25)
+    at Promise (/Users/kudo/01_Work/Repos/expo/expo/android/versioned-react-native/packages/react-native/ReactAndroid/hermes-engine/.cxx/MinSizeRel/3n472i6k/armeabi-v7a/lib/InternalBytecode/InternalBytecode.js:82:14)
+    at anonymous (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:6106:25)
+    at apply (native)
+    at sendPushNotificationCamionPendiente (http://192.168.1.232:8081/screens\MenNot.bundle//&platform=android&hot=false&lazy=true&dev=true&minify=false&modulesOnly=true&runModule=false&shallow=true:122:24)
+    at anonymous (http://192.168.1.232:8081/Hooks\CRUDHooks.bundle//&platform=android&hot=false&lazy=true&dev=true&minify=false&modulesOnly=true&runModule=false&shallow=true:30:71)     
+    at tryCallOne (/Users/kudo/01_Work/Repos/expo/expo/android/versioned-react-native/packages/react-native/ReactAndroid/hermes-engine/.cxx/MinSizeRel/3n472i6k/armeabi-v7a/lib/InternalBytecode/InternalBytecode.js:53:16)
+    at anonymous (/Users/kudo/01_Work/Repos/expo/expo/android/versioned-react-native/packages/react-native/ReactAndroid/hermes-engine/.cxx/MinSizeRel/3n472i6k/armeabi-v7a/lib/InternalBytecode/InternalBytecode.js:139:27)
+    at apply (native)
+    at anonymous (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:39627:26)
+    at _callTimer (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:39506:17)
+    at _callReactNativeMicrotasksPass (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:39551:17)
+    at callReactNativeMicrotasks (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:39757:44)
+    at __callReactNativeMicrotasks (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:3696:46)
+    at anonymous (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:3470:45)
+    at __guard (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:3669:15)
+    at flushedQueue (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:3469:21)
+    at callFunctionReturnFlushedQueue (http://192.168.1.232:8081/node_modules%5Cexpo%5CAppEntry.bundle//&platform=android&dev=true&hot=false&lazy=true:3454:33)

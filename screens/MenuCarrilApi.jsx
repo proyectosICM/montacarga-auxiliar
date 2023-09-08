@@ -1,9 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useDebugValue, useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-elements";
-import { carrilesURL } from "../API/urlsApi";
+import { carrilesURL, notificarURL } from "../API/urlsApi";
 import {
   editarElemento,
   marcarNotificado,
@@ -14,7 +14,7 @@ import {
   sendPushNotificationCamionPendiente,
   sendPushNotificationCamionPendiente2,
 } from "./MenNot";
-import { cargarPlacaDesdeAlmacenamiento } from "../Hooks/placaLocal";
+import { cargarNIP, cargarPlacaDesdeAlmacenamiento } from "../Hooks/placaLocal";
 import { general } from "../Styles/general";
 import { useBackHandler } from "../Hooks/backHandler";
 
@@ -50,68 +50,63 @@ export function MenuCarrilApi() {
 
   useListarElementos(carrilesURL, carriles, setCarriles);
 
-  /*useEffect(() => {
-    if (carriles) {
-      carriles.map(async(carril) => {
-        if (carril.estadosModel.id === 2) {
-          if(carril.notificar == false || carril.notificar == null){
-
-            await axios.get(`${carrilesURL}/${carril.id}`).then(async(response) => {
-              const elemento = response.data;
-          
-              elemento[`notificar`] = true;
-          
-              await axios.put(`${carrilesURL}/${carril.id}`, elemento).then(() => {
-                console.log(elemento);
-                console.log(carril.id, "pen2")
-              });
-
-            });
-          }
-
+  const [notificar, setNotificar] = useState(null);
+/*
+  useEffect(() => {
+    if(carriles){
+      carriles.forEach((carril) => {
+        if (!carril.notificar && carril.estadosModel.id == 2) {
+            axios.put(`${notificarURL}${carril.id}`).then(()=> {
+              setNotificar(true)
+              console.log("Notificado", carril.id)
+              sendPushNotificationCamionPendiente(carril.id);
+          });
         }
       });
+
+      // Verificar si se debe enviar la notificación
+      /*
+      const shouldNotify = carriles.some((carril) => carril.notificar);
+      if (shouldNotify && notificar) {
+        console.log("Notificado 3")
+        //sendPushNotificationCamionPendiente("ZE");
+        setNotificar(false);
+      }
+
     }
-  }, [carriles]);
+  }, [carriles, notificar]); 
 */
 
-const [carrilesNotificados, setCarrilesNotificados] = useState([]);
-
-  useEffect(() => {
-    const processCarriles = async () => {
-      if (carriles) {
-        for (const carril of carriles) {
-          if (carril.estadosModel.id === 2 && !carril.notificar) {
-            // Verificar si ya se notificó este carril
-            if (!carrilesNotificados.includes(carril.id)) {
-              sendPushNotificationCamionPendiente(carril.id);
-              await editarElemento(carrilesURL, carril.id, "notificar");
-              console.log("Cambiado", carril.id, carril.notificar);
-              // Marcar este carril como notificado
-              setCarrilesNotificados([...carrilesNotificados, carril.id]);
-            }
-          }
+const getButtonStyle = (estadoId, id) => {
+  if (estadoId === 1) {
+    return styles.libreButton;
+  } else if (estadoId === 2) {
+    // Realizar el PUT y manejar la notificación en el .then()
+   /* axios.put(`${notificarURL}${id}`)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log("YA")
+          sendPushNotificationCamionPendiente("WSE");
         }
-      }
-    };
-  
-    processCarriles();
-  }, [carriles, carrilesNotificados]);
-  const getButtonStyle = (estadoId) => {
-    if (estadoId === 1) {
-      return styles.libreButton;
-    } else if (estadoId === 2) {
-      return styles.pendienteButton;
-    } else if (estadoId === 3) {
-      return styles.ocupadoButton;
-    }
-    return styles.libreButton; // Por defecto
-  };
+      })
+      .catch((error) => {
+
+      });
+*/
+    return styles.pendienteButton;
+  } else if (estadoId === 3) {
+    return styles.ocupadoButton;
+  }
+  return styles.libreButton; // Por defecto
+};
+
+const [ipn, setIpn] = useState();
+cargarNIP(setIpn)
 
   return (
     <View style={general.container}>
       <Text style={[general.tittleText, { margin: 100 }]}>Carriles</Text>
-
+      <Text style={general.tittleText}>url: {ipn} </Text>
       <Text style={general.tittleText}>Placa: {placaGuardada} </Text>
       <FlatList
         data={carriles}
@@ -125,7 +120,7 @@ const [carrilesNotificados, setCarrilesNotificados] = useState([]);
                   ? ` - ${item.cantidadMontacargas} Montacargas `
                   : ""
               } `}
-              buttonStyle={getButtonStyle(item.estadosModel.id)}
+              buttonStyle={getButtonStyle(item.estadosModel.id, item.id)}
               onPress={() => Detalles(item.estadosModel.id, item.id)}
             />
           </View>

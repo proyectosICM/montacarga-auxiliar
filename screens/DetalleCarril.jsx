@@ -70,7 +70,7 @@ export function DetalleCarril() {
       finAuxiliar: 1,
       horaFin: horaDeFin,
     };
-    await axios.put(`${finAuxiliarURL}${carrilId}`, requestData);
+    //await axios.put(`${finAuxiliarURL}${carrilId}`, requestData);
   };
 
   const permitirSalidaHabilitado =
@@ -138,7 +138,7 @@ export function DetalleCarril() {
             <Button
               title={
                 carril.finMontacarga1
-                  ? `Montacarga 1 - Libre ${carril.placa1}`
+                  ? `Montacarga 1 - Estacionado ${carril.placa1}`
                   : "Montacarga 1 - Cargando mercaderia"
               }
               buttonStyle={[

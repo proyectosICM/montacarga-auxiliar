@@ -36,9 +36,9 @@ export async function sendPushNotification() {
   }
 }
 
-
+/*
 export const sendPushNotificationCamionPendiente = async (numCarril) => {
-  const [isNotifying, setIsNotifying] = useState(false);
+
   if (isNotifying) {
     return;
   }
@@ -83,8 +83,8 @@ export const sendPushNotificationCamionPendiente = async (numCarril) => {
 
   setIsNotifying(false);
 };
+*/
 
-/*
 export async function sendPushNotificationCamionPendiente(numCarril) {
     if (Device.isDevice) {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -103,13 +103,13 @@ export async function sendPushNotificationCamionPendiente(numCarril) {
           body: 'Camion pendiente a atencion',
           data: { data: 'goes here' },
         },
-        trigger: { seconds: 1 },
+       trigger: { seconds: 20 },
       });
     } else {
       alert('Must use physical device for Push Notifications');
     }
   }
-*/
+
   export async function sendPushNotificationCamionPendiente2(numCarril) {
     if (Device.isDevice) {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();

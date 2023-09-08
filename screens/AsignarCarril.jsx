@@ -33,14 +33,14 @@ export function AsignarCarril() {
   useEffect(() => {
     if (carril) {
       if (carril.placa1 || carril.placa2) {
-        if (carril.placa1 != null && carril.placa1 == placa) {
+        if (carril.placa1 ==  placa || carril.placa2 == placa) {
           setJoin(true);
-        } else if (!carril.placa2 && carril.placa2 == placa) {
-          setJoin(true);
+        } else if (carril.placa1  !== placa|| carril.placa2 !== placa) {
+          setJoin(false);
         }
       }
     }
-  });
+  },[carril]);
 
   useEffect(()=> {
     if(carril){
@@ -68,6 +68,8 @@ export function AsignarCarril() {
   const isContinuarDisabled = !selectedMontacarga || !trabaruedas;
 
   const handleJoin = async () => {
+    console.log(placa)
+    console.log(join)
     try {
       if (join) {
         const response = await axios.put(`${desunirseURL}${carrilId}/${placa}`);
@@ -90,7 +92,6 @@ export function AsignarCarril() {
       estadosModel: {
         id: 3,
       },
-      horaInicio: horaDeInicio,
     };
     console.log(`${asignarMont}${carrilId}`);
     await axios.put(`${asignarMont}${carrilId}`, requestDatas);

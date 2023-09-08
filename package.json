@@ -23,7 +23,8 @@
     "react-native-elements": "^3.4.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "eas-cli": "^5.2.0"
   },
   "private": true
 }
