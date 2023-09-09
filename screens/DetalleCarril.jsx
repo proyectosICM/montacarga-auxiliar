@@ -70,7 +70,7 @@ export function DetalleCarril() {
       finAuxiliar: 1,
       horaFin: horaDeFin,
     };
-    //await axios.put(`${finAuxiliarURL}${carrilId}`, requestData);
+    await axios.put(`${finAuxiliarURL}${carrilId}`, requestData);
   };
 
   const permitirSalidaHabilitado =
