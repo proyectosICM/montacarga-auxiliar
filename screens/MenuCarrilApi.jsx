@@ -106,7 +106,6 @@ cargarNIP(setIpn)
   return (
     <View style={general.container}>
       <Text style={[general.tittleText, { margin: 100 }]}>Carriles</Text>
-      <Text style={general.tittleText}>url: {ipn} </Text>
       <Text style={general.tittleText}>Placa: {placaGuardada} </Text>
       <FlatList
         data={carriles}
