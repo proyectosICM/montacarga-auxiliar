@@ -2,7 +2,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet, Alert } from "react-native";
 import { Button } from "react-native-elements";
-import { carrilesURL, finAuxiliarURL } from "../API/urlsApi";
+import { cambiarEstadoURL, carrilesURL, finAuxiliarURL } from "../API/urlsApi";
 import { useListarElementos } from "../Hooks/CRUDHooks";
 import {
   calcularTiempoTotal,
@@ -27,7 +27,7 @@ export function DetalleCarril() {
 
   const [confirmacionSalida, setConfirmacionSalida] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(0); // Estado para el temporizador
-  const [isEnabled, setIsEnabled] = useState(false);
+  //const [isEnabled, setIsEnabled] = useState(true);
 
   const Liberar = (montacarga) => {
     realizarLiberacion(montacarga);
@@ -54,21 +54,49 @@ export function DetalleCarril() {
 
   useEffect(() => {
     if (carril) {
-      if(!carril.finAuxiliar){
+      if (!carril.finAuxiliar) {
         if (carril.cantidadMontacargas == 1 && carril.finMontacarga1) {
           ConfirmarFin();
-        } else if (carril.cantidadMontacargas == 2 && carril.finMontacarga1 && carril.finMontacarga2) {
+        } else if (
+          carril.cantidadMontacargas == 2 &&
+          carril.finMontacarga1 &&
+          carril.finMontacarga2
+        ) {
           ConfirmarFin();
         }
       }
     }
   }, [carril, montacarga1Liberado, montacarga2Liberado]);
 
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (secondsRemaining > 0) {
+        setSecondsRemaining(secondsRemaining - 1);
+        if (secondsRemaining == 1) {
+          await axios.put(`${cambiarEstadoURL}${carrilId}/1`);
+        }
+      } else {
+        clearInterval(interval);
+        //setIsEnabled(true);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [secondsRemaining]);
+
+  useEffect(() => {
+    if (carril && carril.salida) {
+      if (secondsRemaining == 0) {
+        setSecondsRemaining(10);
+      }
+    }
+  }, [carril]);
+
   const ConfirmarFin = async () => {
     const horaDeFin = getFormattedStartTime();
     const requestData = {
       finAuxiliar: 1,
-      horaFin: horaDeFin,
+      //horaFin: horaDeFin,
     };
     await axios.put(`${finAuxiliarURL}${carrilId}`, requestData);
   };
@@ -111,35 +139,40 @@ export function DetalleCarril() {
             Hora de Inicio de carga:{" "}
             {carril.horaInicio ? formateoTiempo(carril.horaInicio) : "--"}
           </Text>
-          <Text style={styles.status}>
-            {carril.horaFin && (
+
+
+          {carril.horaFin && (
+            <>
               <Text style={styles.status}>
-                Hora de Fin de carga:{" "}
-                {carril.horaFin ? formateoTiempo(carril.horaFin) : "--"}
+                Hora Fin:{" "}
+                {carril.horaFin ? formateoTiempo(carril.horaFin) : "--"}{" "}
               </Text>
-            )}
-          </Text>
-          <Text style={styles.status}>
-            TIempo total:{" "}
-            {carril.horaInicio && carril.horaFin && (
-              <Text>
-                {calcularTiempoTotal(carril.horaInicio, carril.horaFin).minutos}
-                :
-                {
-                  calcularTiempoTotal(carril.horaInicio, carril.horaFin)
-                    .segundos
-                }{" "}
-                minutos
+              <Text style={styles.status}>
+                Tiempo total:{" "}
+                {carril.horaInicio && carril.horaFin && (
+                  <Text>
+                    {
+                      calcularTiempoTotal(carril.horaInicio, carril.horaFin)
+                        .minutos
+                    }
+                    :
+                    {
+                      calcularTiempoTotal(carril.horaInicio, carril.horaFin)
+                        .segundos
+                    }{" "}
+                    minutos
+                  </Text>
+                )}
               </Text>
-            )}
-          </Text>
+            </>
+          )}
 
           {carril.cantidadMontacargas === 1 && (
             <Button
               title={
                 carril.finMontacarga1
-                  ? `Montacarga 1 - Estacionado ${carril.placa1}`
-                  : "Montacarga 1 - Cargando mercaderia"
+                ? `Montacarga 1 Carga terminada `
+                : `Montacarga 1 Cargando mercaderia `
               }
               buttonStyle={[
                 styles.button,
@@ -153,8 +186,8 @@ export function DetalleCarril() {
               <Button
                 title={
                   carril.finMontacarga1
-                  ? `Montacarga 1 - Placa ${carril.placa1} - Libre `
-                  : `Montacarga 1 - Placa ${carril.placa1} - Cargando mercaderia `
+                  ? `Montacarga 1 Carga terminada `
+                  : `Montacarga 1 Cargando mercaderia `
                 }
                 buttonStyle={[
                   styles.button,
@@ -164,8 +197,8 @@ export function DetalleCarril() {
               <Button
                 title={
                   carril.finMontacarga2
-                  ? `Montacarga 2 - Placa ${carril.placa2} - Libre `
-                  : `Montacarga 2 - Placa ${carril.placa2} - Cargando mercaderia `
+                  ? `Montacarga 2 Carga terminada `
+                  : `Montacarga 2 Cargando mercaderia `
                 }
                 buttonStyle={[
                   styles.button,
@@ -177,10 +210,9 @@ export function DetalleCarril() {
 
           {carril.finAuxiliar != true && (
             <Text style={styles.waitText}>
-            Esperando a se terminde de realizar la carga
-            
-          </Text>
-            )}
+              Esperando a se terminde de realizar la carga
+            </Text>
+          )}
 
           {carril.salida !== true && carril.finAuxiliar && (
             <Text style={styles.waitText}>
@@ -197,29 +229,7 @@ export function DetalleCarril() {
               ? "Salida del conductor: Confirmada"
               : "Salida del conductor: No confirmada"}
           </Text>
-          {/*
-<Button
-            title={
-              simulacionCompletada
-                ? "Simulación Completada"
-                : "Simular término de carga"
-            }
-            buttonStyle={[
-              styles.simulateButton,
-              simulacionCompletada && styles.simulationCompletedButton,
-            ]}
-            onPress={handleSimulacionClick}
-          />
 
-          <Button
-            title={"Simular confirmación de salida"}
-            buttonStyle={[
-              styles.confirmationButton,
-              confirmacionSalida && styles.confirmationCompletedButton,
-            ]}
-            onPress={handleConfirmacionSalidaClick}
-          />
-              */}
         </>
       )}
     </View>

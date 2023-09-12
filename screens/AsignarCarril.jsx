@@ -10,7 +10,7 @@ import {
   unirseURL,
 } from "../API/urlsApi";
 import { getFormattedStartTime } from "./../Hooks/timeUtils";
-import { editarElemento, useListarElementos } from "../Hooks/CRUDHooks";
+import { editarElemento, editarElementoValue, useListarElementos } from "../Hooks/CRUDHooks";
 import { useRedirectEffect } from "../Hooks/useRedirectEffect";
 import { cargarPlacaDesdeAlmacenamiento } from "../Hooks/placaLocal";
 import { general } from "../Styles/general";
@@ -20,7 +20,7 @@ export function AsignarCarril() {
   const route = useRoute();
   const { carrilId } = route.params;
   const [trabaruedas, setTrabaruedas] = useState(false);
-  const [selectedMontacarga, setSelectedMontacarga] = useState(null);
+  const [selectedMontacarga, setSelectedMontacarga] = useState(0);
   const [join, setJoin] = useState(false);
 
   const [placa, setPlaca] = useState();
@@ -42,6 +42,8 @@ export function AsignarCarril() {
     }
   },[carril]);
 
+const [continuar, setContinuar] = useState();
+
   useEffect(()=> {
     if(carril){
       if(carril.placa1 && carril.placa2){
@@ -50,6 +52,8 @@ export function AsignarCarril() {
         setSelectedMontacarga(1);
       } else if(!carril.placa1 && carril.placa2){
         setSelectedMontacarga(1);
+      } else if(!carril.placa1 && !carril.placa2){
+        setSelectedMontacarga(0);
       }
     }
   },[carril])
@@ -57,15 +61,32 @@ export function AsignarCarril() {
   useRedirectEffect(carril, 2);
 
   const handleTrabaruedas = () => {
-    editarElemento(`${carrilesURL}`,`${carrilId}`, `trabaruedas`)
-    setTrabaruedas(true);
+    if(trabaruedas){
+      editarElementoValue(`${carrilesURL}`,`${carrilId}`, `trabaruedas`, false);
+      setTrabaruedas(false);
+    } else {
+      editarElementoValue(`${carrilesURL}`,`${carrilId}`, `trabaruedas`, true)
+      setTrabaruedas(true);
+    }
+
   };
 
   const handleMontacargaSelect = (montacarga) => {
     setSelectedMontacarga(1);
   };
 
-  const isContinuarDisabled = !selectedMontacarga || !trabaruedas;
+  //const isContinuarDisabled = !selectedMontacarga && !trabaruedas;
+  const [isContinuarDisabled, setIsContinuarDisabled] = useState(false);
+
+  useEffect(() => {
+    if (!selectedMontacarga || !trabaruedas) {
+      setIsContinuarDisabled(true);
+    } else {
+      if(selectedMontacarga > 0){
+        setIsContinuarDisabled(false);
+      }
+    }
+  }, [selectedMontacarga, trabaruedas]);
 
   const handleJoin = async () => {
     console.log(placa)
@@ -114,7 +135,6 @@ export function AsignarCarril() {
             styles.montacargaButton,
             selectedMontacarga === 1 && styles.selectedButton,
           ]}
-          onPress={() => handleMontacargaSelect(1)}
         />
         <Button
           title={"2"}
@@ -122,7 +142,6 @@ export function AsignarCarril() {
             styles.montacargaButton,
             selectedMontacarga === 2 && styles.selectedButton,
           ]}
-          onPress={() => handleMontacargaSelect(2)}
         />
       </View>
 

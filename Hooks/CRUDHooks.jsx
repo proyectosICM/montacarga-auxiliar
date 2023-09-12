@@ -59,3 +59,17 @@ export function editarElemento(url, id, est) {
     });
   });
 }
+
+export function editarElementoValue(url, id, est, value) {
+  const nurl = `${url}/${id}`;
+
+  axios.get(nurl).then((response) => {
+    const elemento = response.data;
+
+    elemento[est] = value;
+
+    axios.put(nurl, elemento).then(() => {
+      console.log(elemento);
+    });
+  });
+}
