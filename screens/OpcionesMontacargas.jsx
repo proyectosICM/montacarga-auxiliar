@@ -34,26 +34,8 @@ export function OpcionesMontacargas() {
     eliminarNIP();
   };
 
-  const GuardarIp = () => {
-    guardarNIp(ipServidor, setIpServidor, setIpServer);
-    setEditarVisible(false);
-  };
-
-  const NuevaIp = async (ip2) => {
-    //const ipString = ip2.toString(); // Asegúrate de que ip2 sea una cadena
-    await AsyncStorage.setItem("NServidor", ip2);
-    setCambiarIP(false);
-    actualizarIP();
-  }
-
-  const [ipserver, setIpServer] = useState(null); // Inicialmente, el valor es nulo
-
-  const [cambiarIP, setCambiarIP] = useState(false);
-  const [ipServidor, setIpServidor] = useState();
-
 
   cargarPlacaDesdeAlmacenamiento(setPlacaGuardada);
-  //cargarNIP(ipserver)
 
   return (
     <View style={general.container}>
@@ -90,37 +72,10 @@ export function OpcionesMontacargas() {
             onPress={EliminarPlaca}
             buttonStyle={general.buttonPalette}
           />
-          <Button
-            title="Cambiar IP"
-            onPress={() => setCambiarIP(true)}
-            buttonStyle={general.buttonPalette}
-          />
         </View>
       )}
 
-      {cambiarIP && (
-        <>
-          <Text style={general.textStyle}>Editar IP del servidor API:</Text>
-          <TextInput
-            placeholder="Ingrese la nueva Ip del servidor API"
-            value={ipServidor}
-            onChangeText={(texto) => setIpServidor(texto)}
-            style={general.input}
-          />
-          <Button
-            title="Guardar IP"
-            onPress={GuardarIp}
-            buttonStyle={general.buttonPalette}
-          />
-        </>
-      )}
 
-      <Text>Nueva IP : {ipserver && ipserver} </Text>
-      <Button
-            title="Eliminar IP"
-            onPress={EliminarIp}
-            buttonStyle={general.buttonPalette}
-          />
     </View>
   );
 }

@@ -54,9 +54,7 @@ export function editarElemento(url, id, est) {
 
     elemento[est] = true;
 
-    axios.put(nurl, elemento).then(() => {
-      console.log(elemento);
-    });
+    axios.put(nurl, elemento)
   });
 }
 
@@ -68,8 +66,6 @@ export function editarElementoValue(url, id, est, value) {
 
     elemento[est] = value;
 
-    axios.put(nurl, elemento).then(() => {
-      console.log(elemento);
-    });
+    axios.put(nurl, elemento)
   });
 }

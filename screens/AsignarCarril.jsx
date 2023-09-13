@@ -89,16 +89,14 @@ const [continuar, setContinuar] = useState();
   }, [selectedMontacarga, trabaruedas]);
 
   const handleJoin = async () => {
-    console.log(placa)
-    console.log(join)
     try {
       if (join) {
         const response = await axios.put(`${desunirseURL}${carrilId}/${placa}`);
-        console.log("DesUnión exitosa");
+        //console.log("DesUnión exitosa");
         setJoin(false);
       } else if (!join) {
         const response = await axios.put(`${unirseURL}${carrilId}/${placa}`);
-        console.log("Unión exitosa");
+        //console.log("Unión exitosa");
         setJoin(true);
       }
     } catch (error) {
@@ -114,7 +112,6 @@ const [continuar, setContinuar] = useState();
         id: 3,
       },
     };
-    console.log(`${asignarMont}${carrilId}`);
     await axios.put(`${asignarMont}${carrilId}`, requestDatas);
 
   };

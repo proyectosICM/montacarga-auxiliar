@@ -11,8 +11,6 @@ export function MenuCarril() {
         navigation.navigate('Detalle');
     }
 
-    console.log(carrilesURL);
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Carriles</Text>
