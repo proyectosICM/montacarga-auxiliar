@@ -18,7 +18,6 @@ export function OpcionesMontacargas() {
   const [placaGuardada, setPlacaGuardada] = useState("");
   const [editarVisible, setEditarVisible] = useState(false);
 
-
   const navigation = useNavigation();
 
   const EliminarPlaca = () => {
@@ -44,13 +43,12 @@ export function OpcionesMontacargas() {
     await AsyncStorage.setItem("NServidor", ip2);
     setCambiarIP(false);
     actualizarIP();
-  }
+  };
 
   const [ipserver, setIpServer] = useState(null); // Inicialmente, el valor es nulo
 
   const [cambiarIP, setCambiarIP] = useState(false);
   const [ipServidor, setIpServidor] = useState();
-
 
   cargarPlacaDesdeAlmacenamiento(setPlacaGuardada);
   //cargarNIP(ipserver)
@@ -65,62 +63,16 @@ export function OpcionesMontacargas() {
         // Muestra la sección de edición solo cuando editarVisible es verdadero
         <>
           <Text style={general.textStyle}>Editar Placa de montacarga:</Text>
-          <TextInput
-            placeholder="Ingrese la nueva placa"
-            value={placa}
-            onChangeText={(texto) => setPlaca(texto)}
-            style={general.input}
-          />
-          <Button
-            title="Guardar Placa"
-            onPress={GuardarPlaca}
-            buttonStyle={general.buttonPalette}
-          />
+          <TextInput placeholder="Ingrese la nueva placa" value={placa} onChangeText={(texto) => setPlaca(texto)} style={general.input} />
+          <Button title="Guardar Placa" onPress={GuardarPlaca} buttonStyle={general.buttonPalette} />
         </>
       ) : (
         // Muestra el botón "Editar" solo cuando editarVisible es falso
         <View>
-          <Button
-            title="Editar Placa"
-            onPress={() => setEditarVisible(true)}
-            buttonStyle={general.buttonPalette}
-          />
-          <Button
-            title="Eliminar Placa"
-            onPress={EliminarPlaca}
-            buttonStyle={general.buttonPalette}
-          />
-          <Button
-            title="Cambiar IP"
-            onPress={() => setCambiarIP(true)}
-            buttonStyle={general.buttonPalette}
-          />
+          <Button title="Editar Placa" onPress={() => setEditarVisible(true)} buttonStyle={general.buttonPalette} />
+          <Button title="Eliminar Placa" onPress={EliminarPlaca} buttonStyle={general.buttonPalette} />
         </View>
       )}
-
-      {cambiarIP && (
-        <>
-          <Text style={general.textStyle}>Editar IP del servidor API:</Text>
-          <TextInput
-            placeholder="Ingrese la nueva Ip del servidor API"
-            value={ipServidor}
-            onChangeText={(texto) => setIpServidor(texto)}
-            style={general.input}
-          />
-          <Button
-            title="Guardar IP"
-            onPress={GuardarIp}
-            buttonStyle={general.buttonPalette}
-          />
-        </>
-      )}
-
-      <Text>Nueva IP : {ipserver && ipserver} </Text>
-      <Button
-            title="Eliminar IP"
-            onPress={EliminarIp}
-            buttonStyle={general.buttonPalette}
-          />
     </View>
   );
 }

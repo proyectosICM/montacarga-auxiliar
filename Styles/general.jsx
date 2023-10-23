@@ -2,10 +2,12 @@ import { StyleSheet } from "react-native";
 import { BotonColorOscuro, ColorTexto, ColorTextoBoton, ColotTexto } from "./PaletaColores";
 //const fondo1 = require("./fondo1.jpg");
 
+export const LogoAb = require('../Styles/logoab.png');
+
 export const general = StyleSheet.create({
   container: {
     flex: 1,
-    //backgroundColor: "#fff",
+    backgroundColor: "#63777D",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -14,6 +16,16 @@ export const general = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
     color: ColorTexto
+  },
+  imagenLogo: {
+    width: 350,  
+    height: 150, 
+    margin: 15
+  },
+  subLogo: {
+    width: 250,  
+    height: 100, 
+    margin: 15
   },
   input: {
     borderWidth: 1,

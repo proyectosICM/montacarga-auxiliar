@@ -1,19 +1,14 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Image } from "react-native";
 import { Button } from "react-native-elements";
-import {
-  asignarMont,
-  carrilesURL,
-  desunirseURL,
-  unirseURL,
-} from "../API/urlsApi";
+import { asignarMont, carrilesURL, desunirseURL, unirseURL } from "../API/urlsApi";
 import { getFormattedStartTime } from "./../Hooks/timeUtils";
 import { editarElemento, editarElementoValue, useListarElementos } from "../Hooks/CRUDHooks";
 import { useRedirectEffect } from "../Hooks/useRedirectEffect";
 import { cargarPlacaDesdeAlmacenamiento } from "../Hooks/placaLocal";
-import { general } from "../Styles/general";
+import { LogoAb, general } from "../Styles/general";
 
 export function AsignarCarril() {
   const navigation = useNavigation();
@@ -33,42 +28,41 @@ export function AsignarCarril() {
   useEffect(() => {
     if (carril) {
       if (carril.placa1 || carril.placa2) {
-        if (carril.placa1 ==  placa || carril.placa2 == placa) {
+        if (carril.placa1 == placa || carril.placa2 == placa) {
           setJoin(true);
-        } else if (carril.placa1  !== placa|| carril.placa2 !== placa) {
+        } else if (carril.placa1 !== placa || carril.placa2 !== placa) {
           setJoin(false);
         }
       }
     }
-  },[carril]);
+  }, [carril]);
 
-const [continuar, setContinuar] = useState();
+  const [continuar, setContinuar] = useState();
 
-  useEffect(()=> {
-    if(carril){
-      if(carril.placa1 && carril.placa2){
+  useEffect(() => {
+    if (carril) {
+      if (carril.placa1 && carril.placa2) {
         setSelectedMontacarga(2);
-      } else if(carril.placa1 && !carril.placa2){
+      } else if (carril.placa1 && !carril.placa2) {
         setSelectedMontacarga(1);
-      } else if(!carril.placa1 && carril.placa2){
+      } else if (!carril.placa1 && carril.placa2) {
         setSelectedMontacarga(1);
-      } else if(!carril.placa1 && !carril.placa2){
+      } else if (!carril.placa1 && !carril.placa2) {
         setSelectedMontacarga(0);
       }
     }
-  },[carril])
+  }, [carril]);
 
   useRedirectEffect(carril, 2);
 
   const handleTrabaruedas = () => {
-    if(trabaruedas){
-      editarElementoValue(`${carrilesURL}`,`${carrilId}`, `trabaruedas`, false);
+    if (trabaruedas) {
+      editarElementoValue(`${carrilesURL}`, `${carrilId}`, `trabaruedas`, false);
       setTrabaruedas(false);
     } else {
-      editarElementoValue(`${carrilesURL}`,`${carrilId}`, `trabaruedas`, true)
+      editarElementoValue(`${carrilesURL}`, `${carrilId}`, `trabaruedas`, true);
       setTrabaruedas(true);
     }
-
   };
 
   const handleMontacargaSelect = (montacarga) => {
@@ -82,15 +76,15 @@ const [continuar, setContinuar] = useState();
     if (!selectedMontacarga || !trabaruedas) {
       setIsContinuarDisabled(true);
     } else {
-      if(selectedMontacarga > 0){
+      if (selectedMontacarga > 0) {
         setIsContinuarDisabled(false);
       }
     }
   }, [selectedMontacarga, trabaruedas]);
 
   const handleJoin = async () => {
-    console.log(placa)
-    console.log(join)
+    console.log(placa);
+    console.log(join);
     try {
       if (join) {
         const response = await axios.put(`${desunirseURL}${carrilId}/${placa}`);
@@ -116,56 +110,31 @@ const [continuar, setContinuar] = useState();
     };
     console.log(`${asignarMont}${carrilId}`);
     await axios.put(`${asignarMont}${carrilId}`, requestDatas);
-
   };
 
   useRedirectEffect(carril, 3);
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
-        Montacargas maximos:{" "}
-        {carril && carril.montacargasSolicitados}
-      </Text>
+    <View style={general.container}>
+      <View>
+        <Image source={LogoAb} style={general.imagenLogo} />
+      </View>
+      <Text style={styles.title}>Montacargas maximos: {carril && carril.montacargasSolicitados}</Text>
 
       <Text style={styles.title}>Montacargas que han aceptado</Text>
       <View style={styles.buttonContainer}>
-        <Button
-          title={"1"}
-          buttonStyle={[
-            styles.montacargaButton,
-            selectedMontacarga === 1 && styles.selectedButton,
-          ]}
-        />
-        <Button
-          title={"2"}
-          buttonStyle={[
-            styles.montacargaButton,
-            selectedMontacarga === 2 && styles.selectedButton,
-          ]}
-        />
+        <Button title={"1"} buttonStyle={[styles.montacargaButton, selectedMontacarga === 1 && styles.selectedButton]} />
+        <Button title={"2"} buttonStyle={[styles.montacargaButton, selectedMontacarga === 2 && styles.selectedButton]} />
       </View>
 
-      <Text style={styles.infoText}>
-        Trabaruedas: {trabaruedas ? "Si" : "No"}
-      </Text>
+      <Text style={styles.infoText}>Trabaruedas: {trabaruedas ? "Si" : "No"}</Text>
 
-      <Text style={styles.infoText}>
-        Nro. Montacargas: {selectedMontacarga}
-      </Text>
+      <Text style={styles.infoText}>Nro. Montacargas: {selectedMontacarga}</Text>
 
-      <Text style={styles.infoText}>
-        Montacargas 1: {carril && carril.placa1 ? carril.placa1 : "No unido"}
-      </Text>
+      <Text style={styles.infoText}>Montacargas 1: {carril && carril.placa1 ? carril.placa1 : "No unido"}</Text>
 
-      <Text style={styles.infoText}>
-        Montacargas 2: {carril && carril.placa2 ? carril.placa2 : "No unido"}
-      </Text>
+      <Text style={styles.infoText}>Montacargas 2: {carril && carril.placa2 ? carril.placa2 : "No unido"}</Text>
 
-      <Button
-        title={join ? "Unido" : "Unirme"}
-        buttonStyle={join ? styles.confirmButtonGreen : general.styleButton}
-        onPress={() => handleJoin()}
-      />
+      <Button title={join ? "Unido" : "Unirme"} buttonStyle={join ? styles.confirmButtonGreen : general.styleButton} onPress={() => handleJoin()} />
 
       <Button
         title={"Confirmar colocacion de trabaruedas"}
@@ -178,10 +147,7 @@ const [continuar, setContinuar] = useState();
 
       <Button
         title={"Continuar"}
-        buttonStyle={[
-          styles.continuarButton,
-          isContinuarDisabled && styles.disabledButton,
-        ]}
+        buttonStyle={[styles.continuarButton, isContinuarDisabled && styles.disabledButton]}
         disabled={isContinuarDisabled}
         onPress={() => handleContinuar()}
       />

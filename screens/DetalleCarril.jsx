@@ -1,16 +1,13 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet, Alert } from "react-native";
+import { Text, View, StyleSheet, Alert, Image } from "react-native";
 import { Button } from "react-native-elements";
 import { cambiarEstadoURL, carrilesURL, finAuxiliarURL } from "../API/urlsApi";
 import { useListarElementos } from "../Hooks/CRUDHooks";
-import {
-  calcularTiempoTotal,
-  formateoTiempo,
-  getFormattedStartTime,
-} from "../Hooks/timeUtils";
+import { calcularTiempoTotal, formateoTiempo, getFormattedStartTime } from "../Hooks/timeUtils";
 import axios from "axios";
 import { useRedirectEffect } from "../Hooks/useRedirectEffect";
+import { LogoAb, general } from "../Styles/general";
 
 export function DetalleCarril() {
   const route = useRoute();
@@ -42,14 +39,10 @@ export function DetalleCarril() {
   };
 
   const Anunciar = () => {
-    Alert.alert(
-      "Confirmar Termino de carga",
-      `¿Seguro que desea confirmar término de carga?`,
-      [
-        { text: "No", style: "cancel" },
-        { text: "Sí", onPress: ConfirmarFin },
-      ]
-    );
+    Alert.alert("Confirmar Termino de carga", `¿Seguro que desea confirmar término de carga?`, [
+      { text: "No", style: "cancel" },
+      { text: "Sí", onPress: ConfirmarFin },
+    ]);
   };
 
   useEffect(() => {
@@ -57,11 +50,7 @@ export function DetalleCarril() {
       if (!carril.finAuxiliar) {
         if (carril.cantidadMontacargas == 1 && carril.finMontacarga1) {
           ConfirmarFin();
-        } else if (
-          carril.cantidadMontacargas == 2 &&
-          carril.finMontacarga1 &&
-          carril.finMontacarga2
-        ) {
+        } else if (carril.cantidadMontacargas == 2 && carril.finMontacarga1 && carril.finMontacarga2) {
           ConfirmarFin();
         }
       }
@@ -104,9 +93,7 @@ export function DetalleCarril() {
   const permitirSalidaHabilitado =
     carril &&
     ((carril.cantidadMontacargas === 1 && carril.finMontacarga1) ||
-      (carril.cantidadMontacargas === 2 &&
-        carril.finMontacarga1 &&
-        carril.finMontacarga2));
+      (carril.cantidadMontacargas === 2 && carril.finMontacarga1 && carril.finMontacarga2));
 
   const handleSimulacionClick = () => {
     if (!simulacionCompletada) {
@@ -128,38 +115,24 @@ export function DetalleCarril() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={general.container}>
+      <View>
+        <Image source={LogoAb} style={general.imagenLogo} />
+      </View>
       {carril && (
         <>
           <Text style={styles.title}>Carril {carril.id}</Text>
-          <Text style={styles.status}>
-            Estado: {carril.estadosModel.nombre}
-          </Text>
-          <Text style={styles.status}>
-            Hora de Inicio de carga:{" "}
-            {carril.horaInicio ? formateoTiempo(carril.horaInicio) : "--"}
-          </Text>
-
+          <Text style={styles.status}>Estado: {carril.estadosModel.nombre}</Text>
+          <Text style={styles.status}>Hora de Inicio de carga: {carril.horaInicio ? formateoTiempo(carril.horaInicio) : "--"}</Text>
 
           {carril.horaFin && (
             <>
-              <Text style={styles.status}>
-                Hora Fin:{" "}
-                {carril.horaFin ? formateoTiempo(carril.horaFin) : "--"}{" "}
-              </Text>
+              <Text style={styles.status}>Hora Fin: {carril.horaFin ? formateoTiempo(carril.horaFin) : "--"} </Text>
               <Text style={styles.status}>
                 Tiempo total:{" "}
                 {carril.horaInicio && carril.horaFin && (
                   <Text>
-                    {
-                      calcularTiempoTotal(carril.horaInicio, carril.horaFin)
-                        .minutos
-                    }
-                    :
-                    {
-                      calcularTiempoTotal(carril.horaInicio, carril.horaFin)
-                        .segundos
-                    }{" "}
+                    {calcularTiempoTotal(carril.horaInicio, carril.horaFin).minutos}:{calcularTiempoTotal(carril.horaInicio, carril.horaFin).segundos}{" "}
                     minutos
                   </Text>
                 )}
@@ -169,67 +142,29 @@ export function DetalleCarril() {
 
           {carril.cantidadMontacargas === 1 && (
             <Button
-              title={
-                carril.finMontacarga1
-                ? `Montacarga 1 Carga terminada `
-                : `Montacarga 1 Cargando mercaderia `
-              }
-              buttonStyle={[
-                styles.button,
-                carril.finMontacarga1 && styles.liberadoButton,
-              ]}
+              title={carril.finMontacarga1 ? `Montacarga 1 Carga terminada ` : `Montacarga 1 Cargando mercaderia `}
+              buttonStyle={[styles.button, carril.finMontacarga1 && styles.liberadoButton]}
             />
           )}
 
           {carril.cantidadMontacargas === 2 && (
             <>
               <Button
-                title={
-                  carril.finMontacarga1
-                  ? `Montacarga 1 Carga terminada `
-                  : `Montacarga 1 Cargando mercaderia `
-                }
-                buttonStyle={[
-                  styles.button,
-                  carril.finMontacarga1 && styles.liberadoButton,
-                ]}
+                title={carril.finMontacarga1 ? `Montacarga 1 Carga terminada ` : `Montacarga 1 Cargando mercaderia `}
+                buttonStyle={[styles.button, carril.finMontacarga1 && styles.liberadoButton]}
               />
               <Button
-                title={
-                  carril.finMontacarga2
-                  ? `Montacarga 2 Carga terminada `
-                  : `Montacarga 2 Cargando mercaderia `
-                }
-                buttonStyle={[
-                  styles.button,
-                  carril.finMontacarga2 && styles.liberadoButton,
-                ]}
+                title={carril.finMontacarga2 ? `Montacarga 2 Carga terminada ` : `Montacarga 2 Cargando mercaderia `}
+                buttonStyle={[styles.button, carril.finMontacarga2 && styles.liberadoButton]}
               />
             </>
           )}
 
-          {carril.finAuxiliar != true && (
-            <Text style={styles.waitText}>
-              Esperando a se terminde de realizar la carga
-            </Text>
-          )}
+          {carril.finAuxiliar != true && <Text style={styles.waitText}>Esperando a se terminde de realizar la carga</Text>}
 
-          {carril.salida !== true && carril.finAuxiliar && (
-            <Text style={styles.waitText}>
-              Esperando a que el conductor confirme su salida
-            </Text>
-          )}
-          <Text style={styles.confirmationText}>
-            {carril.finAuxiliar
-              ? "Fin de carga: Confirmada"
-              : "Fin de carga: No confirmada"}
-          </Text>
-          <Text style={styles.confirmationText}>
-            {carril.salida
-              ? "Salida del conductor: Confirmada"
-              : "Salida del conductor: No confirmada"}
-          </Text>
-
+          {carril.salida !== true && carril.finAuxiliar && <Text style={styles.waitText}>Esperando a que el conductor confirme su salida</Text>}
+          <Text style={styles.confirmationText}>{carril.finAuxiliar ? "Fin de carga: Confirmada" : "Fin de carga: No confirmada"}</Text>
+          <Text style={styles.confirmationText}>{carril.salida ? "Salida del conductor: Confirmada" : "Salida del conductor: No confirmada"}</Text>
         </>
       )}
     </View>

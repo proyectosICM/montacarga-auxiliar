@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import React, { useDebugValue, useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-elements";
 import { carrilesURL, notificarURL } from "../API/urlsApi";
 import {
@@ -15,7 +15,7 @@ import {
   sendPushNotificationCamionPendiente2,
 } from "./MenNot";
 import { cargarNIP, cargarPlacaDesdeAlmacenamiento } from "../Hooks/placaLocal";
-import { general } from "../Styles/general";
+import { LogoAb, general } from "../Styles/general";
 import { useBackHandler } from "../Hooks/backHandler";
 
 export function MenuCarrilApi() {
@@ -105,6 +105,9 @@ cargarNIP(setIpn)
 
   return (
     <View style={general.container}>
+            <View>
+        <Image source={LogoAb} style={general.imagenLogo} />
+      </View>
       <Text style={[general.tittleText, { margin: 100 }]}>Carriles</Text>
       <Text style={general.tittleText}>Placa: {placaGuardada} </Text>
       <FlatList
