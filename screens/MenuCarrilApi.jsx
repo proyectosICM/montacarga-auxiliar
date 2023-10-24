@@ -135,6 +135,19 @@ cargarNIP(setIpn)
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#63777D",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+    padding: 15,
+  },
   row: {
     flexDirection: "row",
   },
@@ -147,17 +160,22 @@ const styles = StyleSheet.create({
   libreButton: {
     backgroundColor: "#28A745", // Verde para botones libres
     marginBottom: 5,
-    width: 120,
+    width: 150,
   },
   ocupadoButton: {
     backgroundColor: "#DC3545", // Rojo para botones ocupados
     marginBottom: 5,
-    width: 120,
+    width: 150,
   },
   pendienteButton: {
     backgroundColor: "#FFC107", // Amarillo para botones pendientes
     marginBottom: 5,
-    width: 120,
+    width: 150,
+  },
+  scanButton: {
+    backgroundColor: "#007BFF", // Azul para botón de escanear QR
+    marginTop: 20,
+    width: 200,
   },
 });
 
