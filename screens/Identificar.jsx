@@ -18,7 +18,7 @@ export function Identificar() {
 
   return (
     <View style={general.container}>
-      <Text style={general.tittleText}>
+      <Text style={[general.tittleText,{margin:10, textAlign: "center"}]}>
         Ingrese la placa de su Montacargas:
       </Text>
       <TextInput

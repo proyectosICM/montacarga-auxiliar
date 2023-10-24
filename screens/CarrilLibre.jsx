@@ -18,8 +18,8 @@ export function CarrilLibre() {
       <View>
         <Image source={LogoAb} style={general.imagenLogo} />
       </View>
-      <Text style={general.title}>Carril {carril && carril.nombre}</Text>
-      <Text style={general.title}>Este carril se encuentra libre</Text>
+      <Text style={general.tittleText}>Carril {carril && carril.nombre}</Text>
+      <Text style={general.tittleText}>Este carril se encuentra libre</Text>
       <Text style={[general.tittleText, { textAlign: "center" }]}>Cuando el sensor detecte un camion el estado cambiara</Text>
     </View>
   );
