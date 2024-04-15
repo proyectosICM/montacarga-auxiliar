@@ -1,15 +1,6 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
-import { cargarNIP } from "../Hooks/placaLocal";
-
-
-
-
-//export const base = 'https://montacargas-api-production.up.railway.app/api';
 //export const base = 'http://192.168.1.202:65006/api';
  
 export const base = 'https://samloto.com';
-//export const base = 'https://montacargas-api-production.up.railway.app/api';
 export const carrilesURL = `${base}/carriles`;
 export const asignarMont = `${carrilesURL}/asignarMontacargas/`;
 export const finAuxiliarURL = `${carrilesURL}/finAuxiliar/`
